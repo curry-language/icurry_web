@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+
+<html lang="en" dir="ltr">
+  <head>
+    <title>Program</title>
+  </head>
+  <body onload="resizePage();">
+    <script type="text/javascript">
+      function resizePage(){
+        let width = Math.ceil(document.getElementById("prog").offsetWidth) + 45;
+        window.resizeTo(Math.max(350, Math.min(500,width)),600);
+      }
+    </script>
+    <pre>
+      <code id="prog">
+{{prog}}
+      </code>
+    </pre>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+*~
+.cpm
+.curry
+.DS_Store
+
+__pycache__/
+/webapp/svgs
+/webapp/progs
