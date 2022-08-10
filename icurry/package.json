@@ -1,0 +1,46 @@
+{
+    "name": "icurry",
+    "version": "3.2.0",
+    "author": "Michael Hanus <mh@informatik.uni-kiel.de>",
+    "synopsis": "Intermediate format for compiling Curry to imperative languages",
+    "category": [ "Compiler", "Metaprogramming" ],
+    "license": "BSD-3-Clause",
+    "licenseFile": "LICENSE",
+    "dependencies": {
+        "base"         : ">= 3.0.0, < 4.0.0",
+        "containers"   : ">= 3.0.0, < 4.0.0",
+        "currypath"    : ">= 3.0.0, < 4.0.0",
+        "directory"    : ">= 3.0.0, < 4.0.0",
+        "execpath"     : ">= 3.0.0, < 4.0.0",
+        "filepath"     : ">= 3.0.0, < 4.0.0",
+        "flatcurry"    : ">= 3.0.0, < 4.0.0",
+        "frontend-exec": ">= 3.0.0, < 4.0.0",
+        "graphviz"     : ">= 3.0.0, < 4.0.0",
+        "io-extra"     : ">= 3.0.0, < 4.0.0",
+        "process"      : ">= 3.0.0, < 4.0.0",
+        "read-legacy"  : ">= 3.0.0, < 4.0.0",
+        "transformers" : ">= 3.0.0, < 4.0.0",
+        "wl-pprint"    : ">= 3.0.0, < 4.0.0",
+        "xml"          : ">= 3.0.0, < 4.0.0"
+    },
+    "exportedModules": [ "ICurry.Types", "ICurry.Files", "ICurry.Pretty",
+                         "ICurry.Compiler", "ICurry.Interpreter",
+                         "ICurry.Options" ],
+    "executable": {
+        "name"   : "icurry",
+        "main"   : "ICurry.Main"
+    },
+    "testsuite": {
+        "src-dir": "examples",
+        "modules": [ "InterpreterTests" ]
+    },
+    "documentation": {
+        "src-dir": "docs",
+        "main": "implementation_guide.tex"
+    },
+    "source": {
+      "git": "https://git.ps.informatik.uni-kiel.de/curry-packages/icurry.git",
+      "tag": "$version"
+    }
+
+}
