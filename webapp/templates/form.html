@@ -3,157 +3,59 @@
 <html lang="en" dir="ltr">
   <head>
     <title>Form</title>
+    <link rel="stylesheet" href="/static/style.css">
   </head>
   <body>
-    <script type="text/javascript">
-      window.addEventListener( "load", function () {
-        visTypeChange();
+    <script type="text/javascript" src="/static/script-form.js"></script>
 
-        function sendProgData(){
-          const req = new XMLHttpRequest();
-          const data = new FormData(icurryForm);
+    <div class="header">
+      ICurry-Termgraph-Visualizer
+    </div>
 
-          req.addEventListener("load", function(event){
-            document.getElementById("loadingArea").innerHTML="";
-            switch (event.target.status) {
-              case 200:
-                window.location.href = "/slideshow?id=" + event.target.responseText;
-                break;
-              case 400:
-                document.getElementById("msgArea").innerHTML=
-                  "Bad Request, there may have been an error in the supplied program: </br>\
-                  <pre>" + event.target.responseText; + "</pre>";
-                break;
-              case 508:
-                document.getElementById("msgArea").innerHTML=
-                  "Evaluation of main expression took too long,\
-                  likely caused by an infinite loop";
-                break;
-            }
-          });
+    <div id="pagebody">
+      <form id="icurryForm">
+        <p>Program:</p>
+        <p><textarea rows="10" name="program" required="true" placeholder="Program here" id="prog_field">{{prog}}</textarea></p>
+        <p></p>
+        <p>
+          Main expression: <input type="text" size="30" name="main_exp" required="true" placeholder="Main expression here"
+          value="{{main_exp}}" id="main_exp_field">
+        </p>
+        <label for="example_selector">Or load an example:</label>
+        <select id="example_selector" onChange="loadExample()">
+          <option value="null"></option>
+          {% for example in examples %}
+            <option value="{{example}}">{{example}}</option>
+          {% endfor %}
+        </select>
+        <p>
+          <input type="radio" id="radio_graph" name="visualize_type" value="graph" onclick="visTypeChange()" checked>
+          <label for="radio_graph">term graph</label>
+          <input type="radio" id="radio_tree" name="visualize_type" value="tree" onclick="visTypeChange()">
+          <label for="radio_tree">term graph as tree</label>
+          <input style="margin-left:20px" type="checkbox" id="checkbox_ids" name="show_ids" value="false">
+          <label for="checkbox_ids">show node-ids</label>
+        </p>
+        <p id="paragraph_depth" style="display:none;">
+          <label for="input_depth">max depth of term graph as tree:</label>
+          <input type="number" id="input_depth" name="max_depth" value="10">
+        </p>
+        <p style="text-align:center"><input type="submit" value="submit"> <button style="margin-left:20px" onclick="clearForm()">clear text</button></p>
+      </form>
+      <div id="msgArea" style="color: red; font-family: arial;"></div>
+      <div id="loadingArea"></div>
 
-          req.open("POST", "/slideshow");
-          req.send(data);
-          document.getElementById("loadingArea").innerHTML="computing graphs..."
-        }
+      <div style="height:40px"></div>
 
-        function sendFileData(){
-          const req = new XMLHttpRequest();
-          const data = new FormData(fileForm);
+      <form id="fileForm">
+        <p>Or upload pre-rendered images:</p>
+        <input type="file" webkitdirectory directory multiple required accept=".svg"
+            name="svgs" id="fileInput" onChange="fileValidation()">
+        <input type="submit" value="upload svgs" >
+      </form>
 
-          req.addEventListener("load", function(event){
-            document.getElementById("loadingArea").innerHTML="";
-            switch (event.target.status) {
-              case 200:
-                window.location.href = "/slideshow?id=" + event.target.responseText;
-                break;
-              case 400:
-                document.getElementById("msgArea").innerHTML=
-                  "Bad Request: </br>\
-                  <pre>" + event.target.responseText; + "</pre>";
-                break;
-            }
-          });
+      <a href="/static/info.html" title="About this tool" class="help-symbol"><img src="/static/help-symbol.png" alt="Help" style="width:30px; height:30px;"></a>
 
-          req.open("PUT", "/slideshow");
-          req.send(data);
-        }
-
-        const icurryForm = document.getElementById("icurryForm");
-
-        icurryForm.addEventListener("submit", function(event){
-          event.preventDefault();
-          document.getElementById("msgArea").innerHTML="";
-
-          if(checkMainFunc(document.getElementById("prog_field").value)) {
-            sendProgData();
-          } else {
-            document.getElementById("msgArea").innerHTML="Program may not include a procedure called 'icurry_main'.";
-          }
-        });
-
-        const fileForm = document.getElementById("fileForm");
-
-        fileForm.addEventListener("submit", function(event){
-          event.preventDefault();
-          document.getElementById("msgArea").innerHTML="";
-          sendFileData();
-        });
-      });
-
-      /*
-      * Check wether a line in the given string doesn't
-      * declare an "icurry_main"-procedure.
-      */
-      function checkMainFunc(str){
-        lines = str.split('\n');
-        for (let line in lines) {
-          if (line.indexOf("icurry_main") == 0) {
-            return false;
-          }
-        }
-        return true;
-      }
-
-      function FileValidation(){
-        const fileInput = document.getElementById("fileInput");
-        let size = 0;
-        for (let i = 0; i < fileInput.files.length; i++) {
-          size += fileInput.files.item(i).size;
-        }
-        if(size >= Math.pow(2,20)){
-          document.getElementById("msgArea").innerHTML="Files are too large.\
-                                                    Maximum allowed is 1 MB";
-          fileInput.value = "";
-        }
-      }
-
-      function clearForm(){
-        document.getElementById("prog_field").value="";
-        document.getElementById("main_exp_field").value="";
-      }
-
-      function visTypeChange(){
-        on = document.getElementById("radio_tree").checked
-        if(on){
-          document.getElementById("paragraph_depth").style.display = "inline"
-        } else {
-          document.getElementById("paragraph_depth").style.display = "none"
-        }
-      }
-    </script>
-    <form id="icurryForm">
-      <p>Program:</p>
-      <p><textarea rows="10" cols="60" name="program" required="true" placeholder="Program here" id="prog_field">{{prog}}</textarea></p>
-      <p>Main expression:</p>
-      <p><input type="text" size="30" name="main_exp" required="true" placeholder="Main expression here"
-          value="{{main_exp}}" id="main_exp_field"></p>
-      <p>
-        <input type="radio" id="radio_graph" name="visualize_type" value="graph" onclick="visTypeChange()" checked>
-        <label for="radio_graph">term graph</label>
-        <input type="radio" id="radio_tree" name="visualize_type" value="tree" onclick="visTypeChange()">
-        <label for="radio_tree">term graph as tree</label>
-      </p>
-      <p id="paragraph_depth" style="display:none;">
-        <label for="input_depth">max depth of term graph as tree:</label>
-        <input type="number" id="input_depth" name="max_depth" value="10">
-      <p>
-        <input type="checkbox" id="checkbox_ids" name="show_ids" value="false">
-        <label for="checkbox_ids">show node-ids</label>
-      </p>
-      <p><input type="submit" value="submit"></p>
-    </form>
-
-    <button onclick="clearForm()">clear text</button>
-
-    <form id="fileForm">
-      <p>Or upload pre-rendered images:</p>
-      <input type="file" webkitdirectory directory multiple required accept=".svg"
-          name="svgs" id="fileInput" onChange="FileValidation()">
-      <p><input type="submit" value="upload svgs" ></p>
-    </form>
-
-    <div id="msgArea" style="color: red;"></div>
-    <div id="loadingArea"></div>
+    </div>
   </body>
 </html>

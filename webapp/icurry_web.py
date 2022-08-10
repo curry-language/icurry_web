@@ -32,7 +32,13 @@ def main_form():
         lines = load_prog(id).splitlines()
         main_exp = lines.pop()[14:]
         prog = "\n".join(lines[:-1])
-    return render_template("form.html", prog = prog, main_exp = main_exp)
+
+    # get example-list from examples-directory TODO: recursively scan sub-dirs
+    #example_list = []
+    with scandir("examples") as entries:
+        examples_list = [entry.name[:-6] for entry in entries \
+                                    if entry.is_file() and entry.name.endswith(".curry")]
+    return render_template("form.html", prog = prog, main_exp = main_exp, examples = examples_list)
 
 #deliver a page that shows a cached programs source
 @app.route("/source", methods=["GET"])
@@ -45,6 +51,13 @@ def display_source():
         return render_template("program.html", prog = prog, width = win_width)
     else:
         return invalid_id_page("There is no source available for this id.")
+
+@app.route("/example", methods=["POST"])
+def serve_example():
+    print(request.form)
+    with open("examples/" + request.form["example"] + ".curry","r") as ex_file:
+        example = ex_file.read();
+    return example
 
 #deliver a page that shows a slideshow of a computation's term graphs
 @app.route("/slideshow", methods=["POST", "GET", "PUT"])

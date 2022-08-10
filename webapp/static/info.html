@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+<html lang="en" dir="ltr">
+  <head>
+    <title>Form</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <div class="header">
+      About this tool
+    </div>
+
+    <div id="pagebody">
+      <p>
+        <form>
+          <input type="button" value="&lt;&lt; Back to main page" onclick="history.back()">
+        </form>
+      </p>
+      <p>
+        This tool can be used to visualize computations of the
+        <a href="http://curry-lang.org/">Curry programming language</a>.
+        It was created by Sascha Ecks in the context of a bachelor's thesis
+        under Prof. Michael Hanus at the CAU Kiel.
+
+        <h3>Usage</h3>
+        <p>
+          Just enter a program and a main expression that should be evaluated into the corresponding fields.
+          With the "term graph" option, the computation's term graphs are displayed as actual graphs, the
+          "term graph as tree" displays the term graphs as trees, where shared nodes are displayed multiple times.
+        </p>
+        <p>
+          To avoid infinitely deep tree representations of term graphs in case of graphs with circles, a maximum
+          depth for the generated tree-representations has to be specified if "term graph as tree" is selected.
+        </p>
+        <p>
+          For explanations on the ui-elements of the graph-slideshow, please refer to the following screenshot:
+        </p>
+      </p>
+    </div>
+    <img src="/static/slideshow-help.png" alt="Screenshot of the slideshow"
+        style="width:80%;display:block;margin-left: auto;margin-right: auto;">
+  </body>
+</html>
