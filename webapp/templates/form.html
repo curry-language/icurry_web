@@ -14,12 +14,12 @@
 
     <div id="pagebody">
       <form id="icurryForm">
-        <p>Program:</p>
-        <p><textarea rows="10" name="program" required="true" placeholder="Program here" id="prog_field">{{prog}}</textarea></p>
+        <h3>Program:</h3>
+        <p><textarea rows="10" name="program" required="true" placeholder="Program here" class="text_entry" id="prog_field">{{prog}}</textarea></p>
         <p></p>
         <p>
-          Main expression: <input type="text" size="30" name="main_exp" required="true" placeholder="Main expression here"
-          value="{{main_exp}}" id="main_exp_field">
+          <h3>Main expression: <input type="text" size="30" name="main_exp" required="true" placeholder="Main expression here"
+          value="{{main_exp}}" class="text_entry" id="main_exp_field"></h3>
         </p>
         <label for="example_selector">Or load an example:</label>
         <select id="example_selector" onChange="loadExample()">
@@ -40,6 +40,10 @@
           <label for="input_depth">max depth of term graph as tree:</label>
           <input type="number" id="input_depth" name="max_depth" value="10">
         </p>
+        <p>
+          <label for="input_steps">max amount of computation steps:</label>
+          <input type="number" id="input_steps" name="max_steps" value="100" min="1" max="{{max_steps}}" onchange="maxStepValidation()">
+        </p>
         <p style="text-align:center"><input type="submit" value="submit"> <button style="margin-left:20px" onclick="clearForm()">clear text</button></p>
       </form>
       <div id="msgArea" style="color: red; font-family: arial;"></div>
@@ -54,7 +58,7 @@
         <input type="submit" value="upload svgs" >
       </form>
 
-      <a href="/static/info.html" title="About this tool" class="help-symbol"><img src="/static/help-symbol.png" alt="Help" style="width:30px; height:30px;"></a>
+      <a href="/about" title="About this tool" class="help-symbol"><img src="/static/help-symbol.png" alt="Help" style="width:30px; height:30px;"></a>
 
     </div>
   </body>

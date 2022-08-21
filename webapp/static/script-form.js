@@ -1,3 +1,5 @@
+const MAX_STEPS = 200;
+
 window.addEventListener( "load", function () {
   visTypeChange();
 
@@ -116,6 +118,16 @@ function fileValidation(){
     document.getElementById("msgArea").innerHTML="Files are too large.\
                                               Maximum allowed is 1 MB";
     fileInput.value = "";
+  }
+}
+
+function maxStepValidation(){
+  const input_steps = document.getElementById("input_steps");
+  step_val = input_steps.value;
+  if(step_val <= 0){
+    input_steps.value = 1;
+  } else if(step_val > MAX_STEPS){
+    input_steps.value = MAX_STEPS;
   }
 }
 

@@ -17,6 +17,8 @@ app = Flask(__name__)
 app.config["SESSION_COOKIE_SAMESITE"] = "Strict"
 cache_lock = threading.Lock()
 MAX_CACHE_AGE = 60*60
+STEP_AMOUNT_MAX = 200 #Maximum of steps allowed for one computation request.
+                      #Value set here is used in the entire application
 
 @app.route("/static/<path:path>")
 def serve_static():
@@ -38,7 +40,8 @@ def main_form():
     with scandir("examples") as entries:
         examples_list = [entry.name[:-6] for entry in entries \
                                     if entry.is_file() and entry.name.endswith(".curry")]
-    return render_template("form.html", prog = prog, main_exp = main_exp, examples = examples_list)
+    return render_template("form.html", \
+            prog = prog, main_exp = main_exp, examples = examples_list, max_steps = STEP_AMOUNT_MAX)
 
 #deliver a page that shows a cached programs source
 @app.route("/source", methods=["GET"])
@@ -80,6 +83,11 @@ def build_slideshow():
         if (request.form.get("show_ids")):
             g_hash = "i" + g_hash
             icurry_args.append("--shownodeids")
+
+        max_steps = int(request.form.get("max_steps"))
+        if max_steps is None or max_steps > STEP_AMOUNT_MAX:
+            max_steps = STEP_AMOUNT_MAX
+        icurry_args.append(f"--maxsteps={max_steps}")
 
         max_depth = request.form.get("max_depth")
         if max_depth is None:
@@ -165,11 +173,18 @@ def build_slideshow():
 
         return (id, 200)
 
+# Show the about page
+@app.route("/about", methods=["GET"])
+def info_page():
+    return (render_template("info.html", max_steps = STEP_AMOUNT_MAX), 200)
+
+
 def invalid_id_page(msg):
     return (render_template("error.html", \
         title = "Invalid id or index", \
         description = msg), \
         404) #410 - Gone would also be a possibility
+
 
 def check_prog_cache(name):
     return path.isfile(f"progs/{name}.curry")
@@ -181,6 +196,7 @@ def load_prog(name):
             print(f"loading soure file 'progs/{name}.curry'")
             prog = file.read()
             return prog
+
 
 def check_svg_cache(name):
     return path.isfile(f"svgs/{name}/img0.svg")
@@ -254,6 +270,7 @@ def process_svgs(svgs):
                 el.set("onmouseenter", f"nodeEntered({nodeId},{i})")
                 el.set("onmouseleave", f"nodeExited({nodeId},{i})")
 
+
 def rand_str(length):
     str = ""
     for _ in range(length):
@@ -261,6 +278,7 @@ def rand_str(length):
         str += (chr(randint(65, 65 + 26 - 1)))
     return str
 
+# Setup: create necessary directories if they don't exist
 def create_dirs():
     if not path.isdir("svgs"):
         mkdir("svgs")
@@ -268,8 +286,18 @@ def create_dirs():
         mkdir("progs")
 
 
+# Setup: Set parameters in files
+def apply_parameters():
+    with open("static/script-form.js", "r") as formscript:
+        formscript_lines = formscript.readlines()
+    formscript_lines[0] = f"const MAX_STEPS = {STEP_AMOUNT_MAX};\n"
+    with open("static/script-form.js", "w") as formscript:
+        formscript.writelines(formscript_lines)
+
+
 if __name__ == "__main__":
     create_dirs()
+    apply_parameters()
     cleanup_cache(MAX_CACHE_AGE)
     ET.register_namespace("", "http://www.w3.org/2000/svg")
     app.run(debug=True, host=("localhost"))
