@@ -68,6 +68,7 @@ def build_slideshow():
     #Using a thread here might actually not be that helpful
     threading.Thread(target=cleanup_cache, args=(MAX_CACHE_AGE,)).start()
 
+    # Handle visualization request, render svgs and return request-hash
     if request.method == "POST":
         icurry_args = ["-q", "-m", "icurry_main"]
         prog = "\n".join([line.rstrip() for line in request.form["program"].splitlines()]).strip()
@@ -80,20 +81,26 @@ def build_slideshow():
         #hash-name for program-file
         p_hash = "p" + g_hash
 
-        if (request.form.get("show_ids")):
-            g_hash = "i" + g_hash
-            icurry_args.append("--shownodeids")
-
+        # set icurry cli-parameter for maximum-computation steps
+        # and add step-info to hash
         max_steps = int(request.form.get("max_steps"))
         if max_steps is None or max_steps > STEP_AMOUNT_MAX:
             max_steps = STEP_AMOUNT_MAX
-        icurry_args.append(f"--maxsteps={max_steps}")
+        icurry_args.append(f"--maxsteps={max_steps+1}")
+        g_hash += f"_{max_steps}"
 
+        # icurry-parameter for maximum termgraph-as-tree depth
         max_depth = request.form.get("max_depth")
         if max_depth is None:
             max_depth = "10"
         icurry_args.append(f"--maxdepth={max_depth}")
 
+        #add i to hash for visualization with node ids
+        if (request.form.get("show_ids")):
+            g_hash = "i" + g_hash
+            icurry_args.append("--shownodeids")
+
+        # icurry-parameter for the type of visualization (graph or tree)
         visualize_type = request.form["visualize_type"]
         if (visualize_type == "graph"):
             g_hash = "g" + g_hash
@@ -130,11 +137,13 @@ def build_slideshow():
     # display rendered svgs
     elif request.method == "GET":
         g_hash = secure_filename(request.args.get("id"))
+        # get start index and make a usable integer out of it
         s_ind = request.args.get("index")
         try:
             s_ind = max(int(s_ind) if (not s_ind is None) else 1, 0)
         except:
             s_ind = 1
+
         p_hash = "p" + g_hash[g_hash.find('_'):]
         try:
             svgs = load_svgs(g_hash, s_ind)
@@ -158,7 +167,7 @@ def build_slideshow():
 
         while True:
             id = "u_" + rand_str(26)
-            if (not check_svg_cache(id)):
+            if (not check_svg_prerendered_cache(id)):
                 break
 
         files = [file for file in request.files.getlist("svgs") if re.fullmatch(".+\.svg", file.filename)]
@@ -173,7 +182,7 @@ def build_slideshow():
 
         return (id, 200)
 
-# Show the about page
+# Show the "about" page
 @app.route("/about", methods=["GET"])
 def info_page():
     return (render_template("info.html", max_steps = STEP_AMOUNT_MAX), 200)
@@ -197,12 +206,45 @@ def load_prog(name):
             prog = file.read()
             return prog
 
-
-def check_svg_cache(name):
+# Check if a series of svgs with the exact specified name is in cache
+def check_svg_prerendered_cache(name):
     return path.isfile(f"svgs/{name}/img0.svg")
 
+# Check if a series of svgs with the same name and enough rendered images
+# is in cache. Does not work for uploaded series.
+def check_svg_cache(name):
+    short_name, requested_amount = split_hash(name)
+    cache_entry = get_svg_entry(short_name)
+    if cache_entry is None:
+        return False
+    else:
+        _, entry_length = split_hash(cache_entry)
+        if entry_length >= requested_amount:
+            return True
+        else:
+            # if found entry is not long enough, remove it to be replaced
+            delete_cache_entry(cache_entry)
+            return False
+
+# Check if a series of svgs with the same name is in cache
+# and return its name with length of the series
+def get_svg_entry(short_name):
+    with scandir("svgs") as cache_entries:
+        for entry in cache_entries:
+            if(entry.is_dir() and entry.name.startswith(short_name)):
+                return entry.name
+    return None
+
+
+def split_hash(hash):
+    last_underscore = hash.rindex("_")
+    requested_amount = int(hash[last_underscore+1:])
+    short_name = hash[:last_underscore]
+    return short_name, requested_amount
+
+
 # Remove a program and its graph-svgs from cache-storage
-def delete_cache_entry(g_name, p_name):
+def delete_cache_entry(g_name, p_name = ""):
     g_name = secure_filename(g_name)
     p_name = secure_filename(p_name)
     cache_lock.acquire()
@@ -240,11 +282,17 @@ def cleanup_dir(dir, max_age):
 
 # Load a computation's svgs from storage
 def load_svgs(name, ind):
-    print(f"loading image series '{name}'")
+    requested_amount = float('inf')
+    if not name.startswith("u_"):
+        name, requested_amount = split_hash(name)
+
+    name = get_svg_entry(name)
+    print(f"loading image series '{name}' with {requested_amount} images")
+
     svgs = []
     with cache_lock:
-        while True:
-            currFile = f"svgs/{name}/img{ind}.svg"
+        while ind <= requested_amount:
+            currFile = f"svgs/{name}/img{ind}.svg" #acually look for the right dir
             if path.isfile(currFile):
                 svgs.append(ET.parse(currFile))
                 ind += 1
