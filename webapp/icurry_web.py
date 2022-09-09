@@ -9,6 +9,7 @@ from time import time
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
+import sys
 import threading
 import re
 import xml.etree.ElementTree as ET
@@ -16,6 +17,8 @@ import xml.etree.ElementTree as ET
 app = Flask(__name__)
 app.config["SESSION_COOKIE_SAMESITE"] = "Strict"
 cache_lock = threading.Lock()
+INTERNAL_CACHE_CLEANER = True # wether the application should clean the cache
+                               # itself. If not, clean externally.
 MAX_CACHE_AGE = 60*60
 STEP_AMOUNT_MAX = 200 #Maximum of steps allowed for one computation request.
                       #Value set here is used in the entire application
@@ -256,11 +259,12 @@ def delete_cache_entry(g_name, p_name = ""):
     cache_lock.release()
 
 # clear cache-directores of old files recursively
-def cleanup_cache(max_age):
-    dirs_to_scan = ["progs", "svgs"]
-    with cache_lock:
-        for dir in dirs_to_scan:
-            cleanup_dir(dir, max_age)
+def cleanup_cache(max_age, override = False):
+    if INTERNAL_CACHE_CLEANER or override: # Only clean cache when internal cleaning is on
+        dirs_to_scan = ["progs", "svgs"]
+        with cache_lock:
+            for dir in dirs_to_scan:
+                cleanup_dir(dir, max_age)
 
 # clean a directory of old files recursively
 # return True if dir is empty after cleanup
@@ -344,8 +348,11 @@ def apply_parameters():
 
 
 if __name__ == "__main__":
-    create_dirs()
-    apply_parameters()
-    cleanup_cache(MAX_CACHE_AGE)
-    ET.register_namespace("", "http://www.w3.org/2000/svg")
-    app.run(debug=True, host=("localhost"))
+    if len(sys.argv) > 1 and sys.argv[1] == "--clean-cache":
+        cleanup_cache(MAX_CACHE_AGE, True)
+    else:
+        create_dirs()
+        apply_parameters()
+        cleanup_cache(MAX_CACHE_AGE)
+        ET.register_namespace("", "http://www.w3.org/2000/svg")
+        app.run(debug=True, host=("localhost"))
