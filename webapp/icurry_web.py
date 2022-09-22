@@ -22,6 +22,7 @@ INTERNAL_CACHE_CLEANER = True # wether the application should clean the cache
 MAX_CACHE_AGE = 60*60
 STEP_AMOUNT_MAX = 200 #Maximum of steps allowed for one computation request.
                       #Value set here is used in the entire application
+ICURRY_PATH = ""
 
 @app.route("/static/<path:path>")
 def serve_static():
@@ -121,7 +122,7 @@ def build_slideshow():
             print("Running icurry with args: " + str(icurry_args))
             try:
                 # As arguments are supplied as individual strings, shell injection is not possible
-                comp_proc = run(["icurry"] + icurry_args,\
+                comp_proc = run([ICURRY_PATH + "icurry"] + icurry_args,\
                     timeout=30, stderr=PIPE, stdout=PIPE, encoding="UTF-8")
             except TimeoutExpired:
                 print("Execution Timeout")
