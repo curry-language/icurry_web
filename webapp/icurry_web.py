@@ -118,7 +118,7 @@ def build_slideshow():
         if not check_svg_cache(g_hash):
             with open(f"{WEBAPP_PATH}progs/{p_hash}.curry","w") as prog_file:
                 prog_file.write(prog_with_main)
-            icurry_args.append(f"progs/{p_hash}.curry")
+            icurry_args.append(f"{WEBAPP_PATH}progs/{p_hash}.curry")
             print("Running icurry with args: " + str(icurry_args))
             try:
                 # As arguments are supplied as individual strings, shell injection is not possible
