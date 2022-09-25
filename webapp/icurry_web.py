@@ -71,6 +71,7 @@ def serve_example():
 def build_slideshow():
     #Using a thread here might actually not be that helpful
     threading.Thread(target=cleanup_cache, args=(MAX_CACHE_AGE,)).start()
+    ET.register_namespace("", "http://www.w3.org/2000/svg")
 
     # Handle visualization request, render svgs and return request-hash
     if request.method == "POST":
@@ -359,5 +360,4 @@ if __name__ == "__main__":
         create_dirs()
         apply_parameters()
         cleanup_cache(MAX_CACHE_AGE)
-        ET.register_namespace("", "http://www.w3.org/2000/svg")
         app.run(debug=True, host=("localhost"))
