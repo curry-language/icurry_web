@@ -42,7 +42,7 @@ def main_form():
 
     # get example-list from examples-directory TODO: recursively scan sub-dirs
     #example_list = []
-    with scandir("examples") as entries:
+    with scandir(f"{WEBAPP_PATH}examples") as entries:
         examples_list = [entry.name[:-6] for entry in entries \
                                     if entry.is_file() and entry.name.endswith(".curry")]
     return render_template("form.html", \
