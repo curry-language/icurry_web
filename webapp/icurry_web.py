@@ -148,7 +148,7 @@ def build_slideshow():
         except:
             s_ind = 1
 
-        p_hash = "p" + g_hash[g_hash.find('_'):]
+        p_hash = "p" + split_hash(g_hash)[0][g_hash.find('_'):]
         try:
             svgs = load_svgs(g_hash, s_ind)
         except Exception as e:
