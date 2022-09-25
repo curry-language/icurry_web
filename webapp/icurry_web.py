@@ -22,7 +22,8 @@ INTERNAL_CACHE_CLEANER = True # wether the application should clean the cache
 MAX_CACHE_AGE = 60*60
 STEP_AMOUNT_MAX = 200 #Maximum of steps allowed for one computation request.
                       #Value set here is used in the entire application
-ICURRY_PATH = ""
+ICURRY_PATH = "" #path of icurry executable, set if it isnt in system's PATH
+WEBAPP_PATH = "./" #path to the webapp's dir, set if deploying with wsgi-server
 
 @app.route("/static/<path:path>")
 def serve_static():
@@ -61,8 +62,7 @@ def display_source():
 
 @app.route("/example", methods=["POST"])
 def serve_example():
-    print(request.form)
-    with open("examples/" + request.form["example"] + ".curry","r") as ex_file:
+    with open(WEBAPP_PATH + "examples/" + request.form["example"] + ".curry","r") as ex_file:
         example = ex_file.read();
     return example
 
@@ -116,7 +116,7 @@ def build_slideshow():
             return ("Invalid visualization type", 400)
 
         if not check_svg_cache(g_hash):
-            with open(f"progs/{p_hash}.curry","w") as prog_file:
+            with open(f"{WEBAPP_PATH}progs/{p_hash}.curry","w") as prog_file:
                 prog_file.write(prog_with_main)
             icurry_args.append(f"progs/{p_hash}.curry")
             print("Running icurry with args: " + str(icurry_args))
@@ -177,11 +177,11 @@ def build_slideshow():
         files = [file for file in request.files.getlist("svgs") if re.fullmatch(".+\.svg", file.filename)]
         files.sort(key=lambda x: x.filename)
 
-        if (not path.isdir(f"svgs/{id}")):
-            mkdir(f"svgs/{id}")
+        if (not path.isdir(f"{WEBAPP_PATH}svgs/{id}")):
+            mkdir(f"{WEBAPP_PATH}svgs/{id}")
         ind = 1
         for file in files:
-            file.save(f"svgs/{id}/img{ind}.svg")
+            file.save(f"{WEBAPP_PATH}svgs/{id}/img{ind}.svg")
             ind += 1
 
         return (id, 200)
@@ -200,19 +200,19 @@ def invalid_id_page(msg):
 
 
 def check_prog_cache(name):
-    return path.isfile(f"progs/{name}.curry")
+    return path.isfile(f"{WEBAPP_PATH}progs/{name}.curry")
 
 # Load a single program file from cache-storage
 def load_prog(name):
     with cache_lock:
-        with open(f"progs/{name}.curry","r") as file:
+        with open(f"{WEBAPP_PATH}progs/{name}.curry","r") as file:
             print(f"loading soure file 'progs/{name}.curry'")
             prog = file.read()
             return prog
 
 # Check if a series of svgs with the exact specified name is in cache
 def check_svg_prerendered_cache(name):
-    return path.isfile(f"svgs/{name}/img0.svg")
+    return path.isfile(f"{WEBAPP_PATH}svgs/{name}/img0.svg")
 
 # Check if a series of svgs with the same name and enough rendered images
 # is in cache. Does not work for uploaded series.
@@ -233,7 +233,7 @@ def check_svg_cache(name):
 # Check if a series of svgs with the same name is in cache
 # and return its name with length of the series
 def get_svg_entry(short_name):
-    with scandir("svgs") as cache_entries:
+    with scandir(f"{WEBAPP_PATH}svgs") as cache_entries:
         for entry in cache_entries:
             if(entry.is_dir() and entry.name.startswith(short_name)):
                 return entry.name
@@ -252,9 +252,9 @@ def delete_cache_entry(g_name, p_name = ""):
     g_name = secure_filename(g_name)
     p_name = secure_filename(p_name)
     cache_lock.acquire()
-    if (path.isdir(f"svgs/{g_name}")):
-        rmtree(f"svgs/{g_name}")
-    prog_file = f"progs/{p_name}.curry"
+    if (path.isdir(f"{WEBAPP_PATH}svgs/{g_name}")):
+        rmtree(f"{WEBAPP_PATH}svgs/{g_name}")
+    prog_file = f"{WEBAPP_PATH}progs/{p_name}.curry"
     if path.isfile(prog_file):
         remove(prog_file)
     cache_lock.release()
@@ -262,7 +262,7 @@ def delete_cache_entry(g_name, p_name = ""):
 # clear cache-directores of old files recursively
 def cleanup_cache(max_age, override = False):
     if INTERNAL_CACHE_CLEANER or override: # Only clean cache when internal cleaning is on
-        dirs_to_scan = ["progs", "svgs"]
+        dirs_to_scan = [f"{WEBAPP_PATH}progs", f"{WEBAPP_PATH}svgs"]
         with cache_lock:
             for dir in dirs_to_scan:
                 cleanup_dir(dir, max_age)
@@ -297,7 +297,8 @@ def load_svgs(name, ind):
     svgs = []
     with cache_lock:
         while ind <= requested_amount:
-            currFile = f"svgs/{name}/img{ind}.svg" #acually look for the right dir
+            #acually look for the right dir
+            currFile = f"{WEBAPP_PATH}svgs/{name}/img{ind}.svg"
             if path.isfile(currFile):
                 svgs.append(ET.parse(currFile))
                 ind += 1
@@ -341,10 +342,13 @@ def create_dirs():
 
 # Setup: Set parameters in files
 def apply_parameters():
-    with open("static/script-form.js", "r") as formscript:
+    with open(f"{WEBAPP_PATH}static/script-form.js", "r") as formscript:
         formscript_lines = formscript.readlines()
     formscript_lines[0] = f"const MAX_STEPS = {STEP_AMOUNT_MAX};\n"
-    with open("static/script-form.js", "w") as formscript:
+    with open(f"{WEBAPP_PATH}static/script-form.js", "w") as formscript:
+        #alternative to change js file in order to enforce the set
+        # max_stesps: dont enforce max on webpage, send back error when
+        # set value is too large
         formscript.writelines(formscript_lines)
 
 
