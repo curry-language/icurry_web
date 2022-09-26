@@ -343,10 +343,10 @@ def rand_str(length):
 
 # Setup: create necessary directories if they don't exist
 def create_dirs():
-    if not path.isdir("svgs"):
-        mkdir("svgs")
-    if not path.isdir("progs"):
-        mkdir("progs")
+    if not path.isdir(f"{WEBAPP_PATH}svgs"):
+        mkdir(f"{WEBAPP_PATH}svgs")
+    if not path.isdir(f"{WEBAPP_PATH}progs"):
+        mkdir(f"{WEBAPP_PATH}progs")
 
 
 # Setup: Set parameters in files
