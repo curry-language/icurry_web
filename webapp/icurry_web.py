@@ -14,9 +14,7 @@ import threading
 import re
 import xml.etree.ElementTree as ET
 
-app = Flask(__name__)
-app.config["SESSION_COOKIE_SAMESITE"] = "Strict"
-cache_lock = threading.Lock()
+# --------------- User Settings -----------------
 INTERNAL_CACHE_CLEANER = True # wether the application should clean the cache
                                # itself. If not, clean externally.
 MAX_CACHE_AGE = 60*60
@@ -24,6 +22,16 @@ STEP_AMOUNT_MAX = 200 #Maximum of steps allowed for one computation request.
                       #Value set here is used in the entire application
 ICURRY_PATH = "" #path of icurry executable, set if it isnt in system's PATH
 WEBAPP_PATH = "./" #path to the webapp's dir, set if deploying with wsgi-server
+# -----------------------------------------------
+
+app = Flask(__name__)
+app.config["SESSION_COOKIE_SAMESITE"] = "Strict"
+cache_lock = threading.Lock()
+
+def create_app():
+    create_dirs()
+    apply_parameters()
+    cleanup_cache(MAX_CACHE_AGE)
 
 @app.route("/static/<path:path>")
 def serve_static():
@@ -357,7 +365,4 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--clean-cache":
         cleanup_cache(MAX_CACHE_AGE, True)
     else:
-        create_dirs()
-        apply_parameters()
-        cleanup_cache(MAX_CACHE_AGE)
         app.run(debug=True, host=("localhost"))
