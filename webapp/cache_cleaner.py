@@ -1,5 +1,14 @@
 # Functions for cleaning the cache of the icurry-webapp
 
+from time import time
+from os import path, remove, scandir, rmdir
+from webapp_settings import MAX_CACHE_AGE, WEBAPP_PATH
+
+import threading
+
+# Not sure if this actually helps in a wsgi-deplyment
+cache_lock = threading.Lock()
+
 # Remove a program and its graph-svgs from cache-storage
 def delete_cache_entry(g_name, p_name = ""):
     g_name = secure_filename(g_name)

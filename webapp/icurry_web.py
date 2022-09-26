@@ -1,33 +1,27 @@
 from flask import Flask, render_template, Markup, session, make_response, request
 from random import randint
 from subprocess import run, PIPE, TimeoutExpired
-from os import path, mkdir, remove, scandir, rmdir
+from os import path, mkdir, scandir
 from shutil import rmtree
 from base64 import b32encode
 from hashlib import md5
-from time import time
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
-from cache_cleaner import cleanup_cache, delete_cache_entry
+from cache_cleaner import cleanup_cache, delete_cache_entry, cache_lock
+from webapp_settings import INTERNAL_CACHE_CLEANER,\
+                            MAX_CACHE_AGE,\
+                            STEP_AMOUNT_MAX,\
+                            ICURRY_PATH,\
+                            WEBAPP_PATH
 
 import sys
 import threading
 import re
 import xml.etree.ElementTree as ET
 
-# --------------- User Settings -----------------
-INTERNAL_CACHE_CLEANER = True # wether the application should clean the cache
-                               # itself. If not, clean externally.
-MAX_CACHE_AGE = 60*60 #Max age of files in cache specified in seconds
-STEP_AMOUNT_MAX = 200 #Maximum of steps allowed for one computation request.
-                      #Value set here is used in the entire application
-ICURRY_PATH = "" #path of icurry executable, set if it isnt in system's PATH
-WEBAPP_PATH = "./" #path to the webapp's dir, set if deploying with wsgi-server
-# -----------------------------------------------
 
 app = Flask(__name__)
 app.config["SESSION_COOKIE_SAMESITE"] = "Strict"
-cache_lock = threading.Lock()
 
 def create_app():
     create_dirs()
