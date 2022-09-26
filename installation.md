@@ -4,7 +4,15 @@ move the webapp directory ('webapp') into the directory intended to be used for 
 
 Install Flask *globally*: ``sudo pip3 install Flask``
 
-(grant read and write-priviliges of cache-directories /path/to/webapp/svgs and /progs to webserver-user (www-data with apache) )
+create and grant read and write-priviliges of cache-directories /path/to/webapp/svgs and /progs to webserver-user (www-data with apache). The webapp can technically create those by itself, but apache will not execute any setup script within the app:
+```
+sudo mkdir /var/www/icurry_web/svgs
+sudo mkdir /var/www/icurry_web/progs
+sudo chown www-data:www-data /var/www/icurry_web/svgs
+sudo chown www-data:www-data /var/www/icurry_web/progs
+```
+
+
 
 place icurry executable somewhere on the system after having compiled it from the icurry package, for example directly into /bin or /usr/bin
 
