@@ -23,11 +23,6 @@ import xml.etree.ElementTree as ET
 app = Flask(__name__)
 app.config["SESSION_COOKIE_SAMESITE"] = "Strict"
 
-def create_app():
-    create_dirs()
-    apply_parameters()
-    if INTERNAL_CACHE_CLEANER:
-        cleanup_cache(MAX_CACHE_AGE)
 
 @app.route("/static/<path:path>")
 def serve_static():
@@ -320,4 +315,8 @@ def apply_parameters():
 
 
 if __name__ == "__main__":
+    create_dirs()
+    apply_parameters()
+    if INTERNAL_CACHE_CLEANER:
+        cleanup_cache(MAX_CACHE_AGE)
     app.run(debug=True, host=("localhost"))
