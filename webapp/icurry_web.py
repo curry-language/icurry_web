@@ -8,6 +8,7 @@ from hashlib import md5
 from time import time
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
+from cache_cleaner import cleanup_cache, delete_cache_entry
 
 import sys
 import threading
@@ -17,7 +18,7 @@ import xml.etree.ElementTree as ET
 # --------------- User Settings -----------------
 INTERNAL_CACHE_CLEANER = True # wether the application should clean the cache
                                # itself. If not, clean externally.
-MAX_CACHE_AGE = 60*60
+MAX_CACHE_AGE = 60*60 #Max age of files in cache specified in seconds
 STEP_AMOUNT_MAX = 200 #Maximum of steps allowed for one computation request.
                       #Value set here is used in the entire application
 ICURRY_PATH = "" #path of icurry executable, set if it isnt in system's PATH
@@ -31,7 +32,8 @@ cache_lock = threading.Lock()
 def create_app():
     create_dirs()
     apply_parameters()
-    cleanup_cache(MAX_CACHE_AGE)
+    if INTERNAL_CACHE_CLEANER:
+        cleanup_cache(MAX_CACHE_AGE)
 
 @app.route("/static/<path:path>")
 def serve_static():
@@ -77,8 +79,9 @@ def serve_example():
 #deliver a page that shows a slideshow of a computation's term graphs
 @app.route("/slideshow", methods=["POST", "GET", "PUT"])
 def build_slideshow():
-    #Using a thread here might actually not be that helpful
-    threading.Thread(target=cleanup_cache, args=(MAX_CACHE_AGE,)).start()
+    if INTERNAL_CACHE_CLEANER:
+        #Using a thread here might actually not be that helpful
+        threading.Thread(target=cleanup_cache, args=(MAX_CACHE_AGE,)).start()
     ET.register_namespace("", "http://www.w3.org/2000/svg")
 
     # Handle visualization request, render svgs and return request-hash
@@ -255,45 +258,6 @@ def split_hash(hash):
     short_name = hash[:last_underscore]
     return short_name, requested_amount
 
-
-# Remove a program and its graph-svgs from cache-storage
-def delete_cache_entry(g_name, p_name = ""):
-    g_name = secure_filename(g_name)
-    p_name = secure_filename(p_name)
-    cache_lock.acquire()
-    if (path.isdir(f"{WEBAPP_PATH}svgs/{g_name}")):
-        rmtree(f"{WEBAPP_PATH}svgs/{g_name}")
-    prog_file = f"{WEBAPP_PATH}progs/{p_name}.curry"
-    if path.isfile(prog_file):
-        remove(prog_file)
-    cache_lock.release()
-
-# clear cache-directores of old files recursively
-def cleanup_cache(max_age, override = False):
-    if INTERNAL_CACHE_CLEANER or override: # Only clean cache when internal cleaning is on
-        dirs_to_scan = [f"{WEBAPP_PATH}progs", f"{WEBAPP_PATH}svgs"]
-        with cache_lock:
-            for dir in dirs_to_scan:
-                cleanup_dir(dir, max_age)
-
-# clean a directory of old files recursively
-# return True if dir is empty after cleanup
-def cleanup_dir(dir, max_age):
-    curr_time = time()
-    is_dir_empty = True
-    with scandir(dir) as entries:
-        for entry in entries:
-            if entry.is_file() and (curr_time - entry.stat().st_atime) > max_age:
-                remove(entry.path)
-            elif entry.is_dir():
-                if (cleanup_dir(entry, max_age)):
-                    rmdir(entry)
-                else:
-                    is_dir_empty = False
-            else:
-                is_dir_empty = False
-    return is_dir_empty
-
 # Load a computation's svgs from storage
 def load_svgs(name, ind):
     requested_amount = float('inf')
@@ -362,7 +326,4 @@ def apply_parameters():
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == "--clean-cache":
-        cleanup_cache(MAX_CACHE_AGE, True)
-    else:
-        app.run(debug=True, host=("localhost"))
+    app.run(debug=True, host=("localhost"))
