@@ -3,6 +3,7 @@
 from time import time
 from os import path, remove, scandir, rmdir
 from webapp_settings import MAX_CACHE_AGE, WEBAPP_PATH
+from werkzeug.utils import secure_filename
 
 import threading
 
