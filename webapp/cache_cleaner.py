@@ -2,6 +2,7 @@
 
 from time import time
 from os import path, remove, scandir, rmdir
+from shutil import rmtree
 from webapp_settings import MAX_CACHE_AGE, WEBAPP_PATH
 from werkzeug.utils import secure_filename
 
@@ -48,4 +49,4 @@ def cleanup_dir(dir, max_age):
     return is_dir_empty
 
 if __name__ == "__main__":
-    cleanup_cache(MAX_CACHE_AGE, True)
+    cleanup_cache(MAX_CACHE_AGE)
