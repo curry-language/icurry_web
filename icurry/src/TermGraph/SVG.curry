@@ -9,7 +9,7 @@ module TermGraph.SVG --(xmlGraphs2Svgs, xmlGraphs2SvgGraphs, main)
  where
 
 import XML
-import Data.Maybe         (fromJust, fromMaybe)
+import Data.Maybe         (fromMaybe)
 import Data.List          (find, sum, maximum, minimum)
 import qualified Data.Map as M
 import System.Environment (getArgs)
@@ -148,6 +148,7 @@ calcFillColor active result = case active of
         True -> "lime"
         False -> "white"
 
+-- Convert states from program execution to states for svg creation
 convertState :: Bool -> State -> (Graph, [ChoiceMapping], NodeID)
 convertState labelNID state = (g, choiceMappings, root)
   where
