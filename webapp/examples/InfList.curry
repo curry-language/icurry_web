@@ -1,16 +1,11 @@
--- Testing infinitely many results
-
-aBool :: Bool
-aBool = False ? True
+-- An infinite computation: select the last element of an infinite list
 
 last [x] = x
 last (_:xs@(_:_)) = last xs
 
-aBoolList :: [Bool]
-aBoolList = True : aBoolList
+trueList :: [Bool]
+trueList = True : trueList
 
 -- infinitely many values: use option --interactive
 main :: Bool
-main = last aBoolList
-
--- > icurry -i -m main --graphsvg=BL BoolList
+main = last trueList
