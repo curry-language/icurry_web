@@ -2,10 +2,6 @@
 -- If a choice occurs deeply in an expression, pull tabbing
 -- moves the choice to the top and duplicates the spine
 -- before splitting the computations into two tasks.
---
--- To visualize it, executae
---
---     > icurry -g -m main PullTabbing
 
 not :: Bool -> Bool
 not False = True

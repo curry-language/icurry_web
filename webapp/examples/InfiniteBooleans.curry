@@ -1,4 +1,4 @@
--- Testing infinitely many results
+-- An example to compute infinitely many results
 
 aBool :: Bool
 aBool = False ? True
@@ -7,8 +7,6 @@ aBoolList :: [Bool]
 aBoolList = []
 aBoolList = aBool : aBoolList
 
--- infinitely many values: use option --interactive
+-- Compute arbitrary lists of Booleans, i.e., [], [False], [True],...
 main :: [Bool]
 main = normalForm aBoolList
-
--- > icurry -i -m main --graphsvg=BL BoolList
