@@ -2,7 +2,7 @@
 
 <html lang="en" dir="ltr">
   <head>
-    <title>Termgraph-Visualizer</title>
+    <title>Curry Term Graph Visualizer</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/curry-32x32.png">
   </head>
@@ -10,42 +10,42 @@
     <script type="text/javascript" src="/static/script-form.js"></script>
 
     <div class="header">
-      ICurry-Termgraph-Visualizer
+      Curry Term Graph Visualizer
     </div>
 
     <div id="pagebody">
       <form id="icurryForm">
-        <h3>Program:</h3>
-        <p><textarea rows="10" name="program" required="true" placeholder="Program here" class="text_entry" id="prog_field">{{prog}}</textarea></p>
+        <h3>Curry program:</h3>
+        <p><textarea rows="15" name="program" required="true" placeholder="Program here" class="text_entry" id="prog_field">{{prog}}</textarea></p>
         <p></p>
         <p>
           <h3>Main expression: <input type="text" size="30" name="main_exp" required="true" placeholder="Main expression here"
           value="{{main_exp}}" class="text_entry" id="main_exp_field"></h3>
         </p>
-        <label for="example_selector">Or load an example:</label>
+        <label for="example_selector">Or load an example program:</label>
         <select id="example_selector" onChange="loadExample()">
           <option value="null"></option>
           {% for example in examples %}
             <option value="{{example}}">{{example}}</option>
           {% endfor %}
         </select>
-        <p>
+        <p> Show
           <input type="radio" id="radio_graph" name="visualize_type" value="graph" onclick="visTypeChange()" checked>
           <label for="radio_graph">term graph</label>
           <input type="radio" id="radio_tree" name="visualize_type" value="tree" onclick="visTypeChange()">
           <label for="radio_tree">term graph as tree</label>
           <input style="margin-left:20px" type="checkbox" id="checkbox_ids" name="show_ids" value="false">
-          <label for="checkbox_ids">show node-ids</label>
+          <label for="checkbox_ids">with node IDs</label>
         </p>
         <p id="paragraph_depth" style="display:none;">
-          <label for="input_depth">max depth of term graph as tree:</label>
-          <input type="number" id="input_depth" name="max_depth" value="10">
+          <label for="input_depth">Maximum depth of term graph as tree:</label>
+          <input type="number" id="input_depth" size="8" name="max_depth" value="10">
         </p>
         <p>
-          <label for="input_steps">max amount of computation steps:</label>
-          <input type="number" id="input_steps" name="max_steps" value="100" min="1" max="{{max_steps}}" onchange="maxStepValidation()">
+          <label for="input_steps">Maximum number of computation steps:</label>
+          <input type="number" id="input_steps" size="8" name="max_steps" value="100" min="1" max="{{max_steps}}" onchange="maxStepValidation()">
         </p>
-        <p style="text-align:center"><input type="submit" value="submit"> <button style="margin-left:20px" onclick="clearForm()">clear text</button></p>
+        <p style="text-align:center"><input type="submit" value="evaluate expression"> <button style="margin-left:20px" onclick="clearForm()">clear program</button></p>
       </form>
       <div id="msgArea" style="color: red; font-family: arial;"></div>
       <div id="loadingArea"></div>
