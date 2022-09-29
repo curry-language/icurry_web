@@ -45,7 +45,7 @@ def main_form():
         examples_list = [entry.name[:-6] for entry in entries \
                                     if entry.is_file() and entry.name.endswith(".curry")]
     return render_template("form.html", \
-            prog = prog, main_exp = main_exp, examples = examples_list, max_steps = STEP_AMOUNT_MAX)
+            prog = prog, main_exp = main_exp, examples = sorted(examples_list), max_steps = STEP_AMOUNT_MAX)
 
 #deliver a page that shows a cached programs source
 @app.route("/source", methods=["GET"])
