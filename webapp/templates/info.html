@@ -28,40 +28,68 @@
 
         <h3>Usage</h3>
         <p>
-          Just enter a Curry program and a main expression that should
-          be evaluated into the corresponding fields.
-          Note that the Curry program must <em>define all functions</em>, i.e.,
-          only data types but no functions from the prelude can be used.
-          With the "term graph" option, the computation's
+          Just enter a Curry program (see below) and a main expression
+          that should be evaluated into the corresponding fields.
+          With the default "<em>term graph</em>" option, the computation's
           <a href="https://en.wikipedia.org/wiki/Term_graph" target="_blank">term graphs</a>
-         are displayed as actual graphs so that the sharing of common
-         subexpression is visualized.
+         are displayed as actual graphs so that
+         the sharing of common subexpressions as well as
+         non-deterministic computations are visualized.
+         The latter are represented by explicit choice nodes
+         (labelled with "?") which are processed by
+         <a href="http://dx.doi.org/10.1017/S1471068411000263" target="_blank">pull-tab steps</a>
+         when they occur in demanded argument positions (see example
+         program "<code>PullTabbing</code>").
         </p>
         <p>
-         The option "term graph as tree" displays the term graphs as trees,
-         where shared nodes are displayed multiple times.
+         The option "<em>term graph as tree</em>" displays the term graphs
+         as trees, where shared nodes are displayed multiple times
+         (using colors to identify shared nodes).
          To avoid infinitely deep tree representations of term graphs
-         in case of graphs with circles, a maximum
+         in case of cyclic graphs (see example program
+         "<code>CyclicTrues</code>"), a maximum
          depth for the generated tree representations has to be specified
          if this option is selected.
+        </p>
+        <p>
+         The option "<em>with node IDs</em>" adds a unique number to the label
+         of each node.
+         This is useful to identify the nodes between different
+         computation steps, even if their label was changed
+         by a graph rewrite step.
         </p>
         <p>
           Furthermore, the maximum number of execution steps is always
           limited to avoid infinite computations.
           The limit can be set manually but cannot exceed {{max_steps}} steps.
         </p>
+
+        <h4>Curry programs</h4>
         <p>
-          Note that Curry programs are compiled into the intermediate
+          Since the tool is intended to visualize small computations,
+          there are some restrictions on the Curry programs to be executed.
+          The <em>Curry program must define all functions</em>, i.e.,
+          there should be no import declarations.
+          Furthermore, only data types but no functions from the prelude
+          can be used. Have a look at the various example programs
+          provided by the tool.
+        </p>
+        <p>
+          Before execution, the given Curry program is compiled
+          into the intermediate
           <a href="https://www.informatik.uni-kiel.de/~mh/papers/Declare19_ICurry.html" target="_blank">ICurry representation</a> of programs.
-          Thus, functions containing nested patterns in the left-hand sides
+          For instance, locally defined functions are transformed
+          into top-level functions with unique names and
+          functions containing nested patterns in the left-hand sides
           of their rules are translated into simpler functions by
-          introducing auxiliary operations which might occur during
+          introducing auxiliary operations.
+          Hence, functions with new names might occur during
           a computation.
         </p>
 
         <h4>Symbols used in the term graph</h4>
         <p>
-          The following symbols are used in graphs:
+          The following symbols are used in the visualized graphs:
         </p>
         <ul>
           <li>
