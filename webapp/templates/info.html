@@ -46,10 +46,10 @@
          as trees, where shared nodes are displayed multiple times
          (using colors to identify shared nodes).
          To avoid infinitely deep tree representations of term graphs
-         in case of cyclic graphs (see example program
-         "<code>CyclicTrues</code>"), a maximum
-         depth for the generated tree representations has to be specified
-         if this option is selected.
+         in case of cyclic graphs (see example programs
+         "<code>CyclicOneTwo</code>" or "<code>CyclicTrues</code>"),
+         a maximum depth for the generated tree representations
+         has to be specified if this option is selected.
         </p>
         <p>
          The option "<em>with node IDs</em>" adds a unique number to the label
@@ -71,8 +71,20 @@
           The <em>Curry program must define all functions</em>, i.e.,
           there should be no import declarations.
           Furthermore, only data types but no functions from the prelude
-          can be used. Have a look at the various example programs
-          provided by the tool.
+          can be used (a few excpetions are described below).
+          Have a look at the various example programs provided by the tool.
+        </p>
+        <p>
+          The given main expression is <em>evaluated to head normal form</em>
+          only, i.e., it stops if no program rule can be applied to the root
+          of the expression. In order to evaluate an expression to
+          a normal form, one can wrap the main expression with
+          the prelude operation <code>normalForm</code>
+          (see, for instance, example program "<code>ZipOnes</code>").
+          To support the evaluation to normal form, the tool
+          also supports the prelude operations <code>normalForm</code>,
+          <code>$!</code>, <code>$!!</code>, <code>seq</code>,
+          and <code>apply</code>.
         </p>
         <p>
           Before execution, the given Curry program is compiled
