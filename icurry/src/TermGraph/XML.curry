@@ -2,7 +2,7 @@
 --- Operations to transform ICurry graphs into XML representation.
 ---
 --- @author Sascha Ecks
---- @version July 2022
+--- @version September 2022
 ------------------------------------------------------------------------------
 
 module TermGraph.XML
