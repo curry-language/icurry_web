@@ -358,7 +358,7 @@ getNodeDepth predMap depthMap visited root currNode =
 --Construct a linked tree for drawing from an unlinked graph
 --returns the tree and its depth
 constructDGraph :: Int -> Graph -> NodeID -> (DNode, Int)
-constructDGraph maxDepth graph root = (dGraph, 1 + maxDepth - reached)
+constructDGraph maxDepth graph root = (dGraph, min (1 + maxDepth - reached) maxDepth)
   where
     (dGraph, reached) = constructDGraph' graph (sharingColorMap graph [root] [] 0) maxDepth root
 
@@ -367,8 +367,8 @@ constructDGraph' graph cmap maxDepth curr =
   (newDNode currNode, if length depths == 0 then maxDepth else minimum depths)
     where
       currNode = findNode graph curr
-      (children, depths) = if maxDepth <= 0
-                  then ([], [])
+      (children, depths) = if maxDepth <= (-1) -- render one more level which isn't fully rendered
+                  then ([], [])                -- this can show that the tree would not end there
                   else unzip $ map (constructDGraph' graph cmap (maxDepth - 1)) (getNodeChildren currNode)
       nodeWidth = max 1 (sum (map width children))
       newDNode (Node ntype nid label _ ac res) =
@@ -517,6 +517,7 @@ treeSvg maxDepth dims (graph, chMap, root) =
               in XElem "svg" [("viewbox", "0 0 " ++ show dimX ++ " " ++ show dimY),
                            ("xmlns", "http://www.w3.org/2000/svg")]
                            (treeSvgRek
+                              maxDepth
                               0
                               (dimY / (toFloat depth))
                               (dimX / (toFloat $ width drawGraph))
@@ -526,17 +527,20 @@ treeSvg maxDepth dims (graph, chMap, root) =
 
 
 
-treeSvgRek :: Int -> Float -> Float -> Float -> DNode -> [ChoiceMapping] -> [XmlExp]
-treeSvgRek   level levelHeight leafWidth leftBound currNode chMap =
+treeSvgRek :: Int -> Int -> Float -> Float -> Float -> DNode -> [ChoiceMapping] -> [XmlExp]
+treeSvgRek maxDepth level levelHeight leafWidth leftBound currNode chMap =
               (nodeSvg currNode (posX,posY)) :
                 (childrenSvg currChldrn leftBound (currChldrn !?? ((-1 +) <$> (lookup (nodeID currNode) chMap))))
               where
                 currChldrn = children currNode
                 posX = leftBound + ((toFloat $ width currNode) * leafWidth / 2)
                 posY = ((toFloat level) + 0.5) * levelHeight
+                connectionDashes = if level >= maxDepth - 1 then "5,5" else ""
+                connectionColour = if level >= maxDepth - 1 then "lightgrey" else "black"
                 childrenSvg []     _       _          = []
                 childrenSvg (c:cs) currLeft choiceChld = (connection c currLeft ((Just c) == choiceChld)) :
                                               (treeSvgRek
+                                                    maxDepth
                                                     (level + 1)
                                                     levelHeight
                                                     leafWidth
@@ -545,7 +549,9 @@ treeSvgRek   level levelHeight leafWidth leftBound currNode chMap =
                                                     chMap) ++
                                               (childrenSvg cs (currLeft + (toFloat $ width c) * leafWidth) choiceChld)
                 --draw a connection between the current node and the current child
-                connection c currLeft thick = (bezierSvg
+                connection c currLeft thick = (dashedBezierSvg
+                                        connectionDashes
+                                        connectionColour
                                         (posX, posY + ((snd nodeSize) / 2))
                                         (currLeft + (toFloat (width c)) * leafWidth / 2,
                                           ((toFloat level) + 1.5) * levelHeight - (snd nodeSize) / 2)
@@ -646,18 +652,24 @@ nodeTextSvg label (x,y) = XElem "text" [("x",(show x)),
                                           ("font-size","12")]
                                         [XText label]
 
+
 bezierSvg :: Point -> Point -> Int -> XmlExp
-bezierSvg from to sWidth = let bOffset = ((snd to) - (snd from)) * 0.2
+bezierSvg from to sWidth = dashedBezierSvg "" "black" from to sWidth
+
+dashedBezierSvg :: String -> String -> Point -> Point -> Int -> XmlExp
+dashedBezierSvg dashes colour from to sWidth = let bOffset = ((snd to) - (snd from)) * 0.2
                             in XElem "path"
                                   [ ( "d", unwords ["M", (svgCoord from),
                                           "C", (svgCoord (movePoint from (0, bOffset))),
                                           (svgCoord (movePoint to (0, -bOffset))),
                                           (svgCoord to)] ),
-                                    ( "stroke", "black" ),
+                                    ( "stroke", colour ),
                                     ( "stroke-width", (show sWidth) ),
-                                    ( "fill", "none" ) ]
+                                    ( "fill", "none" ),
+                                    ( "stroke-dasharray", dashes ) ]
                                   []
 
+-- draws a 180° turn Bezier curve
 bezBowSvg :: Point -> Point -> Float -> XmlExp
 bezBowSvg from to dir = let bOffset = dir * (snd nodeSize) * 0.7
                   in XElem "path"

@@ -19,7 +19,7 @@ function showSlides(n) {
   } else {
     slideIndex = n;
   }
-  console.log("Now showing slide " + slideIndex);
+  //console.log("Now showing slide " + slideIndex);
 
 
   for (let i = 0; i < slides.length; i++) {
@@ -54,7 +54,7 @@ function setSlideAmount(n) {
 }
 
 function nodeEntered(nid, gid) {
-  console.log("Node " + nid + " in graph " + gid + " entered");
+  //console.log("Node " + nid + " in graph " + gid + " entered");
   let nodes = document.getElementsByClassName("node" + nid + " graph" + gid);
   if(nodes.length > 1){
     for(let i = 0; i < nodes.length; i++){
@@ -64,7 +64,7 @@ function nodeEntered(nid, gid) {
 }
 
 function nodeExited(nid, gid) {
-  console.log("Node " + nid + " in graph " + gid + " exited");
+  //console.log("Node " + nid + " in graph " + gid + " exited");
   let nodes = document.getElementsByClassName("node" + nid + " graph" + gid);
   let width = "3";
   if(nodes.length > 1){
