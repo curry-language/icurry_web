@@ -315,8 +315,11 @@ def apply_parameters():
 
 
 if __name__ == "__main__":
-    create_dirs()
-    apply_parameters()
-    if INTERNAL_CACHE_CLEANER:
-        cleanup_cache(MAX_CACHE_AGE)
-    app.run(debug=True, host=("localhost"))
+    if sys.argv > 1 && sys.argv[1] == "--set":
+        apply_parameters()
+    else
+        create_dirs()
+        apply_parameters()
+        if INTERNAL_CACHE_CLEANER:
+            cleanup_cache(MAX_CACHE_AGE)
+        app.run(debug=True, host=("localhost"))
