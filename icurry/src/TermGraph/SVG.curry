@@ -400,26 +400,27 @@ graphSvg dims (graph, chMap, root) = drawSvg dims (constructDGGraph graph root) 
 -- Draw a svg of a given draw-Graph
 drawSvg :: Maybe Dimensions -> DGGraph -> NodeID -> [ChoiceMapping] -> XmlExp
 drawSvg dims drawGraph root chMap =
-              let deepestNd = filter ((==(maximum (map depthDG drawGraph))) . depthDG) drawGraph
-                  dgHeight  = toFloat $ depthDG (head deepestNd) +
-                                if length (concatMap childrenDG deepestNd) > 0
-                                  then 2
-                                  else 1
-                  dgWidth   = toFloat (graphWidth drawGraph root)
-                  calcX     = dgWidth * 140
-                  calcY     = max (dgHeight * 80) 400.0
-                  dimX      = fromMaybe (max calcX calcY) (fst <$> dims)
-                  dimY      = fromMaybe dimX (snd <$> dims)
-              in XElem "svg" [("viewbox", "0 0 " ++ show dimX ++ " " ++ show dimY),
-                           ("xmlns", "http://www.w3.org/2000/svg")]
-                           (fst (graphSvgRek
-                              (dimY / dgHeight)
-                              (dimX / dgWidth)
-                              0
-                              root
-                              drawGraph
-                              chMap
-                              []))
+  let deepestNd = filter ((==(maximum (map depthDG drawGraph))) . depthDG)
+                         drawGraph
+      dgHeight  = toFloat $ depthDG (head deepestNd) +
+                    if length (concatMap childrenDG deepestNd) > 0
+                      then 2
+                      else 1
+      dgWidth   = toFloat (graphWidth drawGraph root)
+      calcX     = dgWidth * 140
+      calcY     = max (dgHeight * 80) 400.0
+      dimX      = fromMaybe (max calcX calcY) (fst <$> dims)
+      dimY      = fromMaybe dimX (snd <$> dims)
+  in XElem "svg" [("viewbox", "0 0 " ++ show dimX ++ " " ++ show dimY),
+                  ("xmlns", "http://www.w3.org/2000/svg")]
+               (fst (graphSvgRek
+                  (dimY / dgHeight)
+                  (dimX / dgWidth)
+                  0
+                  root
+                  drawGraph
+                  chMap
+                  []))
 
 graphSvgRek :: Float -> Float -> Float -> NodeID -> DGGraph -> [ChoiceMapping]
                 -> [(NodeID, Point)] -> ([XmlExp], [(NodeID, Point)])
@@ -509,55 +510,49 @@ absMax x y = if (abs x) > (abs y) then x else y
 -- Draw a svg-tree of a given graph
 treeSvg :: Int -> Maybe Dimensions -> (Graph, [ChoiceMapping], NodeID) -> XmlExp
 treeSvg maxDepth dims (graph, chMap, root) =
-              let (drawGraph, depth) = constructDGraph maxDepth graph root
-                  calcX      = toFloat ((width drawGraph) * 140)
-                  calcY      = max (toFloat depth * 80) 400.0
-                  dimX       = fromMaybe (max calcX calcY) (fst <$> dims)
-                  dimY       = fromMaybe dimX (snd <$> dims)
-              in XElem "svg" [("viewbox", "0 0 " ++ show dimX ++ " " ++ show dimY),
-                           ("xmlns", "http://www.w3.org/2000/svg")]
-                           (treeSvgRek
-                              maxDepth
-                              0
-                              (dimY / (toFloat depth))
-                              (dimX / (toFloat $ width drawGraph))
-                              0
-                              drawGraph
-                              chMap)
+  let (drawGraph, depth) = constructDGraph maxDepth graph root
+      calcX      = toFloat ((width drawGraph) * 140)
+      calcY      = max (toFloat depth * 80) 400.0
+      dimX       = fromMaybe (max calcX calcY) (fst <$> dims)
+      dimY       = fromMaybe dimX (snd <$> dims)
+  in XElem "svg" [("viewbox", "0 0 " ++ show dimX ++ " " ++ show dimY),
+                  ("xmlns", "http://www.w3.org/2000/svg")]
+           (treeSvgRek
+              maxDepth
+              0
+              (dimY / (toFloat depth))
+              (dimX / (toFloat $ width drawGraph))
+              0
+              drawGraph
+              chMap)
 
 
-
-treeSvgRek :: Int -> Int -> Float -> Float -> Float -> DNode -> [ChoiceMapping] -> [XmlExp]
+treeSvgRek :: Int -> Int -> Float -> Float -> Float -> DNode -> [ChoiceMapping]
+           -> [XmlExp]
 treeSvgRek maxDepth level levelHeight leafWidth leftBound currNode chMap =
-              (nodeSvg currNode (posX,posY)) :
-                (childrenSvg currChldrn leftBound (currChldrn !?? ((-1 +) <$> (lookup (nodeID currNode) chMap))))
-              where
-                currChldrn = children currNode
-                posX = leftBound + ((toFloat $ width currNode) * leafWidth / 2)
-                posY = ((toFloat level) + 0.5) * levelHeight
-                connectionDashes = if level >= maxDepth - 1 then "5,5" else ""
-                connectionColour = if level >= maxDepth - 1 then "lightgrey" else "black"
-                childrenSvg []     _       _          = []
-                childrenSvg (c:cs) currLeft choiceChld = (connection c currLeft ((Just c) == choiceChld)) :
-                                              (treeSvgRek
-                                                    maxDepth
-                                                    (level + 1)
-                                                    levelHeight
-                                                    leafWidth
-                                                    currLeft
-                                                    c
-                                                    chMap) ++
-                                              (childrenSvg cs (currLeft + (toFloat $ width c) * leafWidth) choiceChld)
-                --draw a connection between the current node and the current child
-                connection c currLeft thick = (dashedBezierSvg
-                                        connectionDashes
-                                        connectionColour
-                                        (posX, posY + ((snd nodeSize) / 2))
-                                        (currLeft + (toFloat (width c)) * leafWidth / 2,
-                                          ((toFloat level) + 1.5) * levelHeight - (snd nodeSize) / 2)
-                                        (if thick
-                                          then 3
-                                          else 1))
+  (nodeSvg currNode (posX,posY)) :
+  (childrenSvg currChldrn leftBound
+               (currChldrn !?? ((-1 +) <$> (lookup (nodeID currNode) chMap))))
+ where
+   currChldrn = children currNode
+   posX = leftBound + ((toFloat $ width currNode) * leafWidth / 2)
+   posY = ((toFloat level) + 0.5) * levelHeight
+   connectionDashes = if level >= maxDepth - 1 then "5,5" else ""
+   connectionColour = if level >= maxDepth - 1 then "darkgrey" else "black"
+
+   childrenSvg []     _        _          = []
+   childrenSvg (c:cs) currLeft choiceChld =
+     (connection c currLeft ((Just c) == choiceChld)) :
+     (treeSvgRek maxDepth (level + 1) levelHeight leafWidth currLeft c chMap) ++
+     (childrenSvg cs (currLeft + (toFloat $ width c) * leafWidth) choiceChld)
+
+   --draw a connection between the current node and the current child
+   connection c currLeft thick =
+     dashedBezierSvg connectionDashes connectionColour
+       (posX, posY + ((snd nodeSize) / 2))
+       (currLeft + (toFloat (width c)) * leafWidth / 2,
+        ((toFloat level) + 1.5) * levelHeight - (snd nodeSize) / 2)
+       (if thick then 3 else 1)
 
 
 -- Return the given list if p is true else return the empty list
