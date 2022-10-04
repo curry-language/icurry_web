@@ -18,8 +18,8 @@
         </form>
       </p>
       <p>
-        This tool can be used to visualize smaller computations of the
-        <a href="http://curry-lang.org/" target="_blank">Curry programming language</a>
+        This tool can be used to visualize smaller computations of
+        <a href="http://curry-lang.org/" target="_blank">Curry programs</a>
         as a slide show.
         It was created by Sascha Ecks in the context of a bachelor's thesis
         supervised by
@@ -64,18 +64,18 @@
           The limit can be set manually but cannot exceed {{max_steps}} steps.
         </p>
 
-        <h4>Curry programs</h4>
+        <h4>Requirements on Curry programs</h4>
         <p>
           Since the tool is intended to visualize small computations,
           there are some restrictions on the Curry programs to be executed.
-          The <em>Curry program must define all functions</em>, i.e.,
-          there should be no import declarations.
-          Furthermore, only data types but no functions from the prelude
-          can be used (a few excpetions are described below).
+          The entered <em>Curry program must define all operations</em>, i.e.,
+          it should not use any operations from imported modules.
+          From the standard prelude, only data types but no operations
+          can be used (a few exceptions are described below).
           Have a look at the various example programs provided by the tool.
         </p>
         <p>
-          The given main expression is <em>evaluated to head normal form</em>
+          The provided main expression is <em>evaluated to head normal form</em>
           only, i.e., it stops if no program rule can be applied to the root
           of the expression. In order to evaluate an expression to
           a normal form, one can wrap the main expression with
@@ -90,12 +90,12 @@
           Before execution, the given Curry program is compiled
           into the intermediate
           <a href="https://www.informatik.uni-kiel.de/~mh/papers/Declare19_ICurry.html" target="_blank">ICurry representation</a> of programs.
-          For instance, locally defined functions are transformed
-          into top-level functions with unique names and
-          functions containing nested patterns in the left-hand sides
-          of their rules are translated into simpler functions by
-          introducing auxiliary operations.
-          Hence, functions with new names might occur during
+          For instance, locally defined operations are transformed
+          into top-level operations with unique names and
+          operations containing nested patterns in the left-hand sides
+          of their rules are translated into operations with simpler pattterns
+          by introducing auxiliary operations.
+          Hence, operations with new names might occur during
           a computation.
         </p>
 
@@ -113,7 +113,9 @@
            non-deterministic choices between two expressions.
            Thus, non-deterministic computations are explicitly
            represented (in contrast to backtracking implementations).
-           The number after the "?" is the unique choice identifier.
+           The number after the "?" is the unique choice identifier
+           (choice identifiers are necessary to ensure the
+           <a href="http://dx.doi.org/10.1017/S1471068411000263" target="_blank">correctness of pull-tabbing</a>).
           </li>
           <li>
            <em>Yellow nodes</em> identify the node to be evaluated in the
