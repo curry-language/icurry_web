@@ -33,9 +33,10 @@
           With the default "<em>term graph</em>" option, the computation's
           <a href="https://en.wikipedia.org/wiki/Term_graph" target="_blank">term graphs</a>
          are displayed as actual graphs so that
-         the sharing of common subexpressions as well as
-         non-deterministic computations are visualized.
-         The latter are represented by explicit choice nodes
+         the sharing of common subexpressions (see example
+         program "<code>AndShare</code>")
+         as well as non-deterministic computations are visualized.
+         Non-determinism is represented by explicit choice nodes
          (labelled with "?") which are processed by
          <a href="http://dx.doi.org/10.1017/S1471068411000263" target="_blank">pull-tab steps</a>
          when they occur in demanded argument positions (see example
@@ -116,6 +117,10 @@
            The number after the "?" is the unique choice identifier
            (choice identifiers are necessary to ensure the
            <a href="http://dx.doi.org/10.1017/S1471068411000263" target="_blank">correctness of pull-tabbing</a>).
+           If some alternative of a choice is selected during a computation,
+           the selected branch of the choice (and all identical choices)
+           is highlighted by a bold line (see example programs
+           "<code>AndSomeBool</code>" or "<code>AndSomeNotBool</code>")
           </li>
           <li>
            <em>Yellow nodes</em> identify the node to be evaluated in the
