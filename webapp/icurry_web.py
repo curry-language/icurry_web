@@ -242,10 +242,13 @@ def get_svg_entry(short_name):
 
 
 def split_hash(hash):
-    last_underscore = hash.rindex("_")
-    requested_amount = int(hash[last_underscore+1:])
-    short_name = hash[:last_underscore]
-    return short_name, requested_amount
+    if hash[0] == "u":
+        return hash, float('inf')
+    else:
+        last_underscore = hash.rindex("_")
+        requested_amount = int(hash[last_underscore+1:])
+        short_name = hash[:last_underscore]
+        return short_name, requested_amount
 
 # Load a computation's svgs from storage
 def load_svgs(name, ind):
