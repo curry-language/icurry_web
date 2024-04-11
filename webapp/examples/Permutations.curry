@@ -8,6 +8,6 @@ ndinsert x (y:ys) = y : ndinsert x ys
 perm []     = []
 perm (x:xs) = ndinsert x (perm xs)
 
--- Compute the permutations of a given list (requires 113 steps)
+-- Compute the permutations of a given list (requires 127 steps)
 main :: [Int]
 main = normalForm (perm [1,2])

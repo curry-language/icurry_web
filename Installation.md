@@ -2,7 +2,7 @@ Prerequisite: python3 and pip3 (package manager for python3) are installed ``sud
 
 move the webapp directory ('webapp') into the directory intended to be used for the wsgi-app, for example /var/www: ``cp -r /path/to/icurry_web/webapp /var/www/icurry_web/``
 
-Install Flask *globally*: ``sudo pip3 install Flask``
+Install Flask *globally*: ``sudo pip3 install Flask==2.3.1``
 
 create and grant read and write-priviliges of cache-directories ``/path/to/webapp/svgs`` and ``[...]/progs`` to the webserver-user (www-data with apache). The webapp can technically create those by itself, but apache will not execute any setup script within the app:
 ```

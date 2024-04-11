@@ -6,7 +6,7 @@ The implementation of the web interface requires python 3.7, pip3 and Flask.
 These can be installed as follows (Ubuntu, Debian):
 
     > sudo apt install python3 python3-pip
-    > pip3 install Flask
+    > pip3 install Flask==2.3.1
 
 Furthermore, an installation of the ICurry package (version 3.2.0 or newer)
 is required, i.e., the executable `icurry` must be in the path.
