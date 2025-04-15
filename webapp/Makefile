@@ -12,8 +12,12 @@ PIDFILE = server.pid
 
 PID := $(shell if [ -f $(PIDFILE) ] ; then cat $(PIDFILE) ; else echo "" ; fi)
 
+SERVERADDRESS = 127.0.0.1
+# The port number to be used by the local server
+SERVERPORT = 13254
+
 # Command to run the server:
-SERVERCMD = flask --app icurry_web.py run
+SERVERCMD = flask --app icurry_web.py run -p $(SERVERPORT)
 
 .PHONY: all
 all:
@@ -32,12 +36,13 @@ icurry:
 start:
 	@mkdir -p $(LOGDIR)
 ifeq ($(PID),)
+	@echo "Starting $(PROGNAME) on $(shell hostname --long)"
 	nohup $(SERVERCMD) > $(LOGFILE) 2>&1 &
-	@echo "Started $(PROGNAME) on $(shell hostname --long)"
 	@/bin/rm -f TMPOUT
 	@ps x | grep flask > TMPOUT
-	@grep python3 TMPOUT | cut -f-2 -d ' ' > $(PIDFILE)
+	@grep python TMPOUT | cut -f-2 -d ' ' > $(PIDFILE)
 	@/bin/rm -f TMPOUT
+	@echo "Started $(PROGNAME) on http://$(SERVERADDRESS):$(SERVERPORT)"
 else
 	@echo "$(PROGNAME) is already running with PID $(PID)."
 endif
