@@ -3,11 +3,11 @@
 <html lang="en" dir="ltr">
   <head>
     <title>Curry Term Graph Visualizer</title>
-    <link rel="stylesheet" href="/static/style-slideshow.css">
-    <link rel="icon" type="image/png" sizes="32x32" href="/static/curry-32x32.png">
+    <link rel="stylesheet" href="static/style-slideshow.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="static/curry-32x32.png">
   </head>
   <body>
-    <script type="text/javascript" src="/static/script-slideshow.js"></script>
+    <script type="text/javascript" src="static/script-slideshow.js"></script>
 
     <div class="slideshow-container">
       <!-- graph slides with number -->
@@ -30,8 +30,8 @@
     <!-- The dots/circles -->
     <div id="footer-bar">
       <p style="text-align:left; width:10%;">
-        <a href="/?id={{p_id}}"><button type="button">back</button></a>
-        <button type="button" onclick="popup('/source?id={{p_id}}', 'program')">source</button>
+        <a href=".?id={{p_id}}"><button type="button">back</button></a>
+        <button type="button" onclick="popup('source?id={{p_id}}', 'program')">source</button>
       </p>
       <p style="text-align:center; width:80%;">
         <button type="button" class="sAmountButton" onclick="plusSlideAmount(-1)">-1</button>

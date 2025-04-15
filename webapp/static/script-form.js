@@ -11,7 +11,7 @@ window.addEventListener( "load", function () {
       document.getElementById("loadingArea").innerHTML="";
       switch (event.target.status) {
         case 200:
-          window.location.href = "/slideshow?id=" + event.target.responseText;
+          window.location.href = "slideshow?id=" + event.target.responseText;
           break;
         case 400:
           document.getElementById("msgArea").innerHTML=
@@ -26,7 +26,7 @@ window.addEventListener( "load", function () {
       }
     });
 
-    req.open("POST", "/slideshow");
+    req.open("POST", "slideshow");
     req.send(data);
     document.getElementById("loadingArea").innerHTML="computing graphs..."
   }
@@ -39,7 +39,7 @@ window.addEventListener( "load", function () {
       document.getElementById("loadingArea").innerHTML="";
       switch (event.target.status) {
         case 200:
-          window.location.href = "/slideshow?id=" + event.target.responseText;
+          window.location.href = "slideshow?id=" + event.target.responseText;
           break;
         case 400:
           document.getElementById("msgArea").innerHTML=
@@ -49,7 +49,7 @@ window.addEventListener( "load", function () {
       }
     });
 
-    req.open("PUT", "/slideshow");
+    req.open("PUT", "slideshow");
     req.send(data);
   }
 
@@ -94,7 +94,7 @@ function loadExample(){
   if(example != "null"){
     const req = new XMLHttpRequest();
 
-    req.open("POST", '/example');
+    req.open("POST", 'example');
 
     //Send the proper header information along with the request
     req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");

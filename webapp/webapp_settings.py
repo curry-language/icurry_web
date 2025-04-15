@@ -7,5 +7,7 @@ STEP_AMOUNT_MAX = 200 #Maximum of steps allowed for one computation request.
                       #It may be neccessary to run 'icurry_web.py --set' (with
                       #elevated priviliges) to apply the value to the entire application
 
-ICURRY_PATH = "" #path of icurry executable, set if it isnt in system's PATH
-WEBAPP_PATH = "./" #path to the webapp's dir, set if deploying with wsgi-server
+# path of icurry executable, set if it isnt in system's PATH:
+ICURRY_PATH = ""
+# path to the webapp's dir, set if deploying with wsgi-server:
+WEBAPP_PATH = "./"
