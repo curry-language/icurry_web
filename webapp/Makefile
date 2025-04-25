@@ -21,7 +21,7 @@ SERVERCMD = flask --app icurry_web.py run -p $(SERVERPORT)
 
 .PHONY: all
 all:
-	@echo "build start stop restart ?"
+	@echo "build start stop restart status ?"
 
 .PHONY: build
 build: icurry
@@ -40,7 +40,7 @@ ifeq ($(PID),)
 	nohup $(SERVERCMD) > $(LOGFILE) 2>&1 &
 	@/bin/rm -f TMPOUT
 	@ps x | grep flask > TMPOUT
-	@grep python TMPOUT | cut -f-2 -d ' ' > $(PIDFILE)
+	@grep python TMPOUT | awk '{ print $$1 }' > $(PIDFILE)
 	@/bin/rm -f TMPOUT
 	@echo "Started $(PROGNAME) on http://$(SERVERADDRESS):$(SERVERPORT)"
 else
