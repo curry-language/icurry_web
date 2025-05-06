@@ -53,13 +53,13 @@ ifeq ($(PID),)
 	@echo "$(PROGNAME) is not running."
 else
 	@echo "Stopping $(PROGNAME)"
-	ps -p $(PID) && kill -9 $(PID) 
 	/bin/rm -f $(PIDFILE)
+	ps -p $(PID) && kill -9 $(PID) 
 endif
 
 .PHONY: restart
 restart:
-	$(MAKE) stop
+	$(MAKE) --ignore-errors stop
 	$(MAKE) start
 
 .PHONY: status
